@@ -1,0 +1,6 @@
+order_id,customer_name,total_sales,sales_rank,customer_running_sales,previous_sale,sales_change
+1004,James,300,2,300.0,,
+1005,James,600,1,900.0,300,300
+1001,Alex,2400,1,2400.0,,
+1002,Alex,300,2,2700.0,2400,-2100
+1003,Maria,1200,1,1200.0,,
