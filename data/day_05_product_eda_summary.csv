@@ -1,0 +1,4 @@
+product_name,order_count,total_revenue,average_order_sales,total_quantity,revenue_share
+Laptop,2,3600,1800.0,3,0.75
+Monitor,2,900,450.0,3,0.1875
+Keyboard,1,300,300.0,3,0.0625
