@@ -26,7 +26,3 @@ Build an end-to-end analytics and machine learning project that:
 Supply Chain Sales and Demand Analytics
 
 The project will analyze sales/order data to understand customer demand, product performance, and sales patterns, and eventually build a predictive model using the processed data.
-
-## Progress
-
-- Day 1: SQL review, CTEs, Pandas foundations, Git/GitHub setup
