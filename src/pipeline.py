@@ -1,5 +1,6 @@
 import pandas as pd
 import logging
+import requests
 
 logging.basicConfig(
     level=logging.INFO,
@@ -67,3 +68,21 @@ def run_pipeline(input_path, output_path):
     logging.info("Pipeline completed")
 
     return clean_df
+
+def extract_api_data(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
+
+def transform_api_data(data):
+    df = pd.DataFrame(data)
+    return df
+
+def run_api_pipeline(url, output_path):
+    logging.info("Starting API pipeline")
+    api_data = extract_api_data(url)
+    df = transform_api_data(api_data)
+    logging.info("Loading API data")
+    load_data(df,output_path)
+    logging.info("API pipeline completed")
+    return df
