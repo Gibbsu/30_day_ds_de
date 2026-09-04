@@ -70,19 +70,28 @@ def run_pipeline(input_path, output_path):
     return clean_df
 
 def extract_api_data(url):
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.json()
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error(f"API request failed: {e}")
+        raise
+        
 
 def transform_api_data(data):
     df = pd.DataFrame(data)
     return df
 
 def run_api_pipeline(url, output_path):
-    logging.info("Starting API pipeline")
-    api_data = extract_api_data(url)
-    df = transform_api_data(api_data)
-    logging.info("Loading API data")
-    load_data(df,output_path)
-    logging.info("API pipeline completed")
-    return df
+    try:
+        logging.info("Starting API pipeline")
+        api_data = extract_api_data(url)
+        df = transform_api_data(api_data)
+        logging.info("Loading API data")
+        load_data(df,output_path)
+        logging.info("API pipeline completed")
+        return df
+    except Exception as e:
+        logging.error(f"API pipeline failed: {e}")
+        raise
