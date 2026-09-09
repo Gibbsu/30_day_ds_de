@@ -1,6 +1,9 @@
 import pandas as pd
 import logging
 import requests
+import duckdb
+import argparse
+from src.config import DATA_DIR, DATABASE_PATH, PIPELINE_ENV
 
 logging.basicConfig(
     level=logging.INFO,
@@ -95,3 +98,16 @@ def run_api_pipeline(url, output_path):
     except Exception as e:
         logging.error(f"API pipeline failed: {e}")
         raise
+
+def get_database_connection():
+    return duckdb.connect(DATABASE_PATH)
+
+if __name__ == "__main__":
+    con = get_database_connection()
+    logging.info(f"Database connection established: {DATABASE_PATH}")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--environment",default=PIPELINE_ENV)
+    args = parser.parse_args()
+
+    logging.info(f"Environment: {args.environment}")

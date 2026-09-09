@@ -1,5 +1,6 @@
 import pandas as pd
 import pytest
+from src.config import PIPELINE_ENV
 
 from src.pipeline import clean_sales_data,validate_data
 
@@ -24,3 +25,6 @@ def test_validate_data_duplicate_orders():
         })
     with pytest.raises(ValueError,match="Duplicate order IDs detected"):
         validate_data(df)
+
+def test_pipeline_environment():
+    assert PIPELINE_ENV == "development"
