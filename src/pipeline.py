@@ -53,23 +53,47 @@ def validate_data(df):
 def load_data(df, file_path):
     df.to_csv(file_path, index=False)
 
-def run_pipeline(input_path, output_path):
-    logging.info("Starting pipeline")
-
+def run_pipeline(input_path,output_path):
     logging.info("Extracting data")
     raw_df = extract_data(input_path)
-
     logging.info("Validating data")
     validate_data(raw_df)
-
     logging.info("Cleaning data")
     clean_df = clean_sales_data(raw_df)
-
-    logging.info("Loading data")
+    logging.info("Saving CSV")
     load_data(clean_df, output_path)
 
-    logging.info("Pipeline completed")
+    logging.info("Opening database connection")
+    con = get_database_connection()
 
+    try:
+        logging.info("Creating clean_orders table")
+        con.execute("""
+            CREATE OR REPLACE TABLE clean_orders AS
+                SELECT 
+                *
+                FROM clean_df
+        """)
+        logging.info("Creating product_summary table")   
+        con.execute("""
+            CREATE OR REPLACE TABLE product_summary AS    
+                SELECT
+                    product,
+                    SUM(total_sales) AS total_sales,
+                    SUM(quantity) AS total_quantity,
+                    COUNT(order_id) AS order_count
+                FROM clean_orders
+                GROUP BY product   
+        """)
+
+    except Exception as e:
+        logging.error(f"Database pipeline failed: {e}")
+        raise    
+
+    finally:
+        con.close()
+
+    logging.info("Pipeline completed")    
     return clean_df
 
 def extract_api_data(url):

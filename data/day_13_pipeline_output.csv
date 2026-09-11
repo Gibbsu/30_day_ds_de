@@ -1,0 +1,6 @@
+order_id,product,quantity,price,order_date,total_sales
+1001,Laptop,1.0,1200,2026-01-05,1200.0
+1002,Monitor,2.0,300,2026-01-07,600.0
+1003,Keyboard,1.0,100,2026-01-10,100.0
+1004,Laptop,1.0,1200,2026-02-02,1200.0
+1005,Monitor,3.0,300,2026-02-15,900.0

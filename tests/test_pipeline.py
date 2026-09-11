@@ -1,8 +1,8 @@
 import pandas as pd
 import pytest
-from src.config import PIPELINE_ENV
+from src.config import PIPELINE_ENV, PROJECT_ROOT
 
-from src.pipeline import clean_sales_data,validate_data
+from src.pipeline import clean_sales_data,validate_data, run_pipeline
 
 def test_clean_sales_data():
     df = pd.DataFrame({
@@ -28,3 +28,12 @@ def test_validate_data_duplicate_orders():
 
 def test_pipeline_environment():
     assert PIPELINE_ENV == "development"
+
+def test_pipeline_output():
+    input_path = PROJECT_ROOT / "data/day_06_pipeline_output.csv"
+    output_path = PROJECT_ROOT / "data/day_13_pipeline_output.csv"
+
+    result_df = run_pipeline(input_path,output_path)
+
+    assert output_path.exists()
+    assert "total_sales" in result_df.columns
