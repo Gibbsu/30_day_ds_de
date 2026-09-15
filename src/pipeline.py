@@ -135,3 +135,20 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     logging.info(f"Environment: {args.environment}")
+
+def load_incremental_orders(clean_df, con):
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS clean_orders AS
+        SELECT *
+        FROM clean_df
+        WHERE 1 = 0""")
+    
+    con.execute("""
+        INSERT INTO clean_orders
+        SELECT *
+        FROM clean_df AS n
+        WHERE NOT EXISTS(
+            SELECT 1
+            FROM clean_orders AS c
+            WHERE n.order_id = c.order_id)
+        """)
