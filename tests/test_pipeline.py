@@ -2,7 +2,11 @@ import pandas as pd
 import pytest
 import duckdb
 from src.config import PIPELINE_ENV, PROJECT_ROOT
-from src.pipeline import clean_sales_data,validate_data, run_pipeline, load_incremental_orders
+from src.pipeline import (
+    clean_sales_data,validate_data,
+    run_pipeline,
+    load_incremental_orders,
+    run_transaction_safe_load)
 
 def test_clean_sales_data():
     df = pd.DataFrame({
@@ -53,4 +57,49 @@ def test_incremental_load():
             COUNT(*)
         FROM clean_orders""").fetchone()[0]
     assert row_count == 3
+    con.close()
+
+def test_transaction_safe_load():
+    con = duckdb.connect(":memory:")
+    test_df = pd.DataFrame({"order_id":[3001],
+                  "product":['Keyboard'],
+                  "quantity":[2],
+                  "price":[75],
+                  "order_date":['2026-03-01']})
+    clean_test_df = clean_sales_data(test_df)
+    run_transaction_safe_load(clean_test_df, con)
+    row_count = con.execute("""
+        SELECT
+            COUNT(*)
+        FROM clean_orders
+    """).fetchone()[0]
+    assert row_count == 1
+    run_transaction_safe_load(clean_test_df, con)
+    repeat_row_count = con.execute("""
+        SELECT
+            COUNT(*)
+        FROM clean_orders
+    """).fetchone()[0]
+    assert repeat_row_count == 1
+    con.close()
+
+def test_transaction_rollback():
+    con = duckdb.connect(":memory:")
+    test_df = pd.DataFrame({"order_id":[4001],
+                            "product":['Mouse'],
+                            "quantity":[2],
+                            "price":[50],
+                            "order_date":['2026-03-02']})
+    clean_test_df = clean_sales_data(test_df)
+    empty_test_df = clean_test_df.head(0)
+    load_incremental_orders(empty_test_df, con)
+    con.execute('BEGIN')
+    load_incremental_orders(clean_test_df, con)
+    con.execute('ROLLBACK')
+    row_count = con.execute("""
+            SELECT
+                COUNT(*)
+            FROM clean_orders
+        """).fetchone()[0]
+    assert row_count == 0
     con.close()

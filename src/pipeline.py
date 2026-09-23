@@ -152,3 +152,13 @@ def load_incremental_orders(clean_df, con):
             FROM clean_orders AS c
             WHERE n.order_id = c.order_id)
         """)
+
+def run_transaction_safe_load(clean_df, con):
+    try:
+        con.execute("BEGIN")
+        load_incremental_orders(clean_df, con)
+        con.execute("COMMIT")
+    except Exception as e:
+        con.execute("ROLLBACK")
+        raise
+
